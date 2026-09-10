@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CivicLens — Public Accountability Platform</title>
+  <meta name="description" content="A source-backed civic information platform for understanding constituencies, public funds, development projects and local needs." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- DEMO BANNER -->
+<div class="demo-banner" id="demoBanner">
+  <span class="demo-icon">⚠</span>
+  <strong>Prototype — Demo Data Only.</strong> All figures, names and projects shown are illustrative sample data and do not represent verified government records.
+  <button class="demo-close" onclick="document.getElementById('demoBanner').style.display='none'" aria-label="Close">×</button>
+</div>
+
+<!-- HEADER / NAV -->
+<header class="site-header" id="siteHeader">
+  <nav class="nav-container" role="navigation" aria-label="Main navigation">
+    <div class="nav-logo">
+      <a href="#home" class="logo-link" onclick="showSection('home')">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect width="28" height="28" rx="6" fill="#1B6FEB"/>
+          <path d="M7 14C7 10.134 10.134 7 14 7s7 3.134 7 7-3.134 7-7 7-7-3.134-7-7z" fill="none" stroke="white" stroke-width="2"/>
+          <path d="M14 10v4l3 2" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="14" cy="14" r="1.5" fill="white"/>
+        </svg>
+        <span class="logo-text">CivicLens</span>
+      </a>
+    </div>
+
+    <ul class="nav-links" id="navLinks" role="list">
+      <li><a href="#home" class="nav-link active" data-section="home" onclick="showSection('home')">Home</a></li>
+      <li><a href="#constituencies" class="nav-link" data-section="constituencies" onclick="showSection('constituencies')">Constituencies</a></li>
+      <li><a href="#representatives" class="nav-link" data-section="representatives" onclick="showSection('representatives')">Representatives</a></li>
+      <li><a href="#money" class="nav-link" data-section="money" onclick="showSection('money')">Money</a></li>
+      <li><a href="#projects" class="nav-link" data-section="projects" onclick="showSection('projects')">Projects</a></li>
+      <li><a href="#problems" class="nav-link" data-section="problems" onclick="showSection('problems')">Problems</a></li>
+      <li><a href="#compare" class="nav-link" data-section="compare" onclick="showSection('compare')">Compare</a></li>
+      <li><a href="#sources" class="nav-link" data-section="sources" onclick="showSection('sources')">Sources</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <div class="search-wrapper">
+        <button class="icon-btn search-trigger" id="searchTrigger" aria-label="Open search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+      </div>
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="en" onclick="setLanguage('en')">EN</button>
+        <span class="lang-sep">|</span>
+        <button class="lang-btn" data-lang="hi" onclick="setLanguage('hi')">हि</button>
+      </div>
+      <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Global Search Overlay -->
+  <div class="search-overlay" id="searchOverlay" role="search" aria-label="Global search">
+    <div class="search-overlay-inner">
+      <div class="search-input-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="globalSearch" placeholder="Search constituency, MLA, MP, project or location…" autocomplete="off" />
+        <button class="close-search" onclick="closeSearch()" aria-label="Close search">×</button>
+      </div>
+      <div class="search-results" id="searchResults"></div>
+      <div class="search-suggestions">
+        <span class="suggestion-label">Try:</span>
+        <button class="suggestion-chip" onclick="runSearch('New Delhi')">New Delhi</button>
+        <button class="suggestion-chip" onclick="runSearch('South Delhi')">South Delhi</button>
+        <button class="suggestion-chip" onclick="runSearch('Road project')">Road project</button>
+        <button class="suggestion-chip" onclick="runSearch('MLA')">MLA</button>
+        <button class="suggestion-chip" onclick="runSearch('Drainage')">Drainage</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="mainContent">
+
+<!-- ==================== HOME SECTION ==================== -->
+<section class="page-section active" id="section-home">
+
+  <!-- HERO -->
+  <div class="hero" id="home">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="dot-pulse"></span>
+        <span data-i18n="hero_badge">Public Accountability Platform</span>
+      </div>
+      <h1 class="hero-heading" data-i18n="hero_heading">Know where public money goes.<br>See what gets built.</h1>
+      <p class="hero-sub" data-i18n="hero_sub">A source-backed civic information platform for understanding constituencies, public funds, development projects and local needs.</p>
+
+      <div class="hero-search-box">
+        <svg class="hs-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="heroSearch" placeholder="Search constituency, MLA, MP, project or location…" autocomplete="off" />
+        <button class="hero-search-btn" onclick="heroSearchSubmit()">Search</button>
+        <div class="hero-dropdown" id="heroDropdown"></div>
+      </div>
+
+      <div class="hero-ctas">
+        <button class="btn-primary" onclick="showSection('constituencies')" data-i18n="cta_constituencies">Explore Constituencies</button>
+        <button class="btn-secondary" onclick="showSection('money')" data-i18n="cta_money">Explore Public Money</button>
+      </div>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hs-num" data-count="543">0</span>
+          <span class="hs-label">Parliamentary Constituencies</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hs-num" data-count="4120">0</span>
+          <span class="hs-label">Assembly Segments</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hs-num" data-count="2847">0</span>
+          <span class="hs-label">Projects Tracked</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hs-num" data-count="18640">0</span>
+          <span class="hs-label">Source Documents</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INDIA MAP SECTION -->
+  <div class="section-block">
+    <div class="section-header">
+      <h2 data-i18n="map_heading">Explore India by Constituency</h2>
+      <p class="section-sub" data-i18n="map_sub">Select a state or constituency to explore verified public information.</p>
+    </div>
+    <div class="map-section">
+      <div class="map-controls">
+        <select id="mapStateSelect" onchange="mapStateChanged()" aria-label="Select state">
+          <option value="">All States</option>
+          <option value="delhi">Delhi</option>
+          <option value="maharashtra">Maharashtra</option>
+          <option value="up">Uttar Pradesh</option>
+          <option value="karnataka">Karnataka</option>
+          <option value="rajasthan">Rajasthan</option>
+          <option value="tamil-nadu">Tamil Nadu</option>
+        </select>
+        <select id="mapDistrictSelect" onchange="mapDistrictChanged()" aria-label="Select district">
+          <option value="">All Districts</option>
+        </select>
+        <select id="mapConstSelect" aria-label="Select constituency">
+          <option value="">All Constituencies</option>
+        </select>
+      </div>
+      <div class="map-layout">
+        <div class="india-map-wrap" id="indiaMapWrap">
+          <svg id="indiaMap" viewBox="0 0 600 650" xmlns="http://www.w3.org/2000/svg" aria-label="India map">
+            <!-- Simplified India state shapes (illustrative) -->
+            <g class="map-state" data-state="jammu-kashmir" onclick="mapClickState('jammu-kashmir')">
+              <path d="M180 30 L260 25 L300 60 L280 100 L240 110 L200 90 L175 70 Z" class="state-path" />
+              <text x="235" y="70" class="state-label">J&K</text>
+            </g>
+            <g class="map-state" data-state="himachal" onclick="mapClickState('himachal')">
+              <path d="M240 110 L280 100 L300 130 L270 150 L245 140 Z" class="state-path" />
+              <text x="262" y="132" class="state-label">HP</text>
+            </g>
+            <g class="map-state" data-state="punjab" onclick="mapClickState('punjab')">
+              <path d="M200 110 L240 110 L245 140 L220 160 L195 145 Z" class="state-path" />
+              <text x="218" y="135" class="state-label">PB</text>
+            </g>
+            <g class="map-state" data-state="haryana" onclick="mapClickState('haryana')">
+              <path d="M220 160 L245 140 L270 150 L265 185 L240 200 L218 185 Z" class="state-path" />
+              <text x="240" y="175" class="state-label">HR</text>
+            </g>
+            <g class="map-state active" data-state="delhi" onclick="mapClickState('delhi')">
+              <path d="M240 200 L255 195 L258 210 L245 220 L232 212 Z" class="state-path" />
+              <text x="243" y="211" class="state-label" style="font-size:8px">DL</text>
+            </g>
+            <g class="map-state" data-state="rajasthan" onclick="mapClickState('rajasthan')">
+              <path d="M130 170 L220 160 L218 185 L240 200 L232 212 L220 280 L180 320 L130 310 L100 270 L95 210 Z" class="state-path" />
+              <text x="170" y="250" class="state-label">RJ</text>
+            </g>
+            <g class="map-state" data-state="up" onclick="mapClickState('up')">
+              <path d="M265 185 L300 130 L360 140 L400 170 L390 230 L350 270 L290 260 L260 240 L240 200 L265 185 Z" class="state-path" />
+              <text x="320" y="210" class="state-label">UP</text>
+            </g>
+            <g class="map-state" data-state="uttarakhand" onclick="mapClickState('uttarakhand')">
+              <path d="M270 150 L300 130 L360 140 L340 165 L300 160 L270 150 Z" class="state-path" />
+              <text x="307" y="152" class="state-label" style="font-size:8px">UK</text>
+            </g>
+            <g class="map-state" data-state="bihar" onclick="mapClickState('bihar')">
+              <path d="M390 230 L420 215 L450 225 L445 270 L410 280 L390 260 Z" class="state-path" />
+              <text x="415" y="252" class="state-label">BR</text>
+            </g>
+            <g class="map-state" data-state="jharkhand" onclick="mapClickState('jharkhand')">
+              <path d="M410 280 L445 270 L460 300 L440 340 L400 330 L385 300 Z" class="state-path" />
+              <text x="418" y="308" class="state-label">JH</text>
+            </g>
+            <g class="map-state" data-state="west-bengal" onclick="mapClickState('west-bengal')">
+              <path d="M450 225 L490 230 L500 280 L480 340 L460 300 L445 270 Z" class="state-path" />
+              <text x="470" y="280" class="state-label">WB</text>
+            </g>
+            <g class="map-state" data-state="odisha" onclick="mapClickState('odisha')">
+              <path d="M400 330 L440 340 L450 390 L410 420 L370 400 L360 360 Z" class="state-path" />
+              <text x="405" y="375" class="state-label">OD</text>
+            </g>
+            <g class="map-state" data-state="mp" onclick="mapClickState('mp')">
+              <path d="M220 280 L290 260 L350 270 L360 310 L340 360 L290 380 L240 360 L210 330 Z" class="state-path" />
+              <text x="285" y="330" class="state-label">MP</text>
+            </g>
+            <g class="map-state" data-state="chattisgarh" onclick="mapClickState('chattisgarh')">
+              <path d="M340 360 L360 310 L400 330 L360 360 L370 400 L350 430 L320 410 L310 380 Z" class="state-path" />
+              <text x="345" y="388" class="state-label">CG</text>
+            </g>
+            <g class="map-state" data-state="maharashtra" onclick="mapClickState('maharashtra')">
+              <path d="M165 320 L210 330 L240 360 L290 380 L310 380 L320 410 L300 460 L250 480 L200 460 L155 420 L140 370 Z" class="state-path" />
+              <text x="228" y="415" class="state-label">MH</text>
+            </g>
+            <g class="map-state" data-state="telangana" onclick="mapClickState('telangana')">
+              <path d="M310 380 L350 430 L360 470 L320 500 L285 480 L270 450 L290 430 Z" class="state-path" />
+              <text x="315" y="445" class="state-label">TS</text>
+            </g>
+            <g class="map-state" data-state="andhra" onclick="mapClickState('andhra')">
+              <path d="M320 500 L360 470 L390 490 L400 530 L370 570 L330 560 L300 540 L285 510 Z" class="state-path" />
+              <text x="340" y="527" class="state-label">AP</text>
+            </g>
+            <g class="map-state" data-state="karnataka" onclick="mapClickState('karnataka')">
+              <path d="M200 460 L250 480 L285 480 L285 510 L270 540 L240 570 L195 555 L175 510 L170 470 Z" class="state-path" />
+              <text x="225" y="518" class="state-label">KA</text>
+            </g>
+            <g class="map-state" data-state="goa" onclick="mapClickState('goa')">
+              <path d="M170 470 L185 462 L190 480 L175 490 Z" class="state-path" />
+              <text x="174" y="479" class="state-label" style="font-size:6px">GA</text>
+            </g>
+            <g class="map-state" data-state="tamil-nadu" onclick="mapClickState('tamil-nadu')">
+              <path d="M240 570 L270 540 L300 540 L320 560 L310 610 L280 630 L255 620 L230 600 Z" class="state-path" />
+              <text x="272" y="592" class="state-label">TN</text>
+            </g>
+            <g class="map-state" data-state="kerala" onclick="mapClickState('kerala')">
+              <path d="M195 555 L240 570 L230 600 L210 615 L185 600 L180 570 Z" class="state-path" />
+              <text x="203" y="585" class="state-label">KL</text>
+            </g>
+            <g class="map-state" data-state="gujarat" onclick="mapClickState('gujarat')">
+              <path d="M100 270 L130 310 L165 320 L140 370 L110 380 L75 340 L70 295 Z" class="state-path" />
+              <text x="107" y="330" class="state-label">GJ</text>
+            </g>
+            <!-- Northeast states simplified -->
+            <g class="map-state" data-state="assam" onclick="mapClickState('assam')">
+              <path d="M500 215 L540 220 L545 250 L510 260 L495 245 Z" class="state-path" />
+              <text x="515" y="240" class="state-label" style="font-size:8px">AS</text>
+            </g>
+          </svg>
+          <div class="map-tooltip" id="mapTooltip"></div>
+        </div>
+        <div class="map-sidebar" id="mapSidebar">
+          <div class="map-preview-card" id="mapPreviewCard">
+            <div class="mpc-header">
+              <span class="mpc-badge">Delhi</span>
+              <span class="mpc-type">Union Territory</span>
+            </div>
+            <h3 class="mpc-name">New Delhi</h3>
+            <p class="mpc-rep">Constituency</p>
+            <div class="mpc-stats">
+              <div class="mpc-stat"><span class="mpc-val">5.2L</span><span class="mpc-key">Population</span></div>
+              <div class="mpc-stat"><span class="mpc-val">3.8L</span><span class="mpc-key">Voters</span></div>
+              <div class="mpc-stat"><span class="mpc-val">₹142Cr</span><span class="mpc-key">Funds</span></div>
+              <div class="mpc-stat"><span class="mpc-val">86</span><span class="mpc-key">Projects</span></div>
+            </div>
+            <button class="btn-primary btn-sm" onclick="showSection('constituencies')">View Full Dashboard →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LATEST RECORDS -->
+  <div class="section-block alt-bg">
+    <div class="section-header">
+      <h2>Latest Verified Records</h2>
+      <p class="section-sub">Recently updated entries with documented sources.</p>
+    </div>
+    <div class="latest-records-grid" id="latestRecords"></div>
+  </div>
+
+  <!-- WHAT CHANGED -->
+  <div class="section-block">
+    <div class="section-header">
+      <h2>What Changed?</h2>
+      <p class="section-sub">Recent updates to project statuses, funding records and documents.</p>
+    </div>
+    <div class="changes-timeline" id="changesTimeline"></div>
+  </div>
+
+  <!-- DEVELOPMENT OVER TIME -->
+  <div class="section-block alt-bg">
+    <div class="section-header">
+      <h2>Development Over Time</h2>
+      <p class="section-sub">Select a year to view fund allocation, project activity and expenditure records for New Delhi constituency.</p>
+    </div>
+    <div class="year-nav" id="yearNav"></div>
+    <div class="year-dashboard" id="yearDashboard"></div>
+  </div>
+
+</section>
+
+<!-- ==================== CONSTITUENCIES SECTION ==================== -->
+<section class="page-section" id="section-constituencies">
+  <div class="section-hero mini-hero">
+    <h1 data-i18n="const_heading">Constituency Dashboard</h1>
+    <p data-i18n="const_sub">Explore verified public information for constituencies across India.</p>
+    <select id="constSelector" onchange="loadConstituency(this.value)" aria-label="Select constituency" class="const-select">
+      <option value="new-delhi">New Delhi</option>
+      <option value="south-delhi">South Delhi</option>
+      <option value="north-east-delhi">North East Delhi</option>
+      <option value="chandni-chowk">Chandni Chowk</option>
+    </select>
+  </div>
+
+  <div class="section-block">
+    <div class="const-dashboard" id="constDashboard"></div>
+  </div>
+
+  <!-- ASK ABOUT CONSTITUENCY -->
+  <div class="section-block alt-bg">
+    <div class="section-header">
+      <h2>Ask About This Constituency</h2>
+      <p class="section-sub">Enter a question to find information from our demo dataset.</p>
+    </div>
+    <div class="ask-box">
+      <div class="ask-input-wrap">
+        <input type="text" id="askInput" placeholder="e.g. Which projects are delayed? How much money was spent?" />
+        <button class="btn-primary" onclick="askConstituency()">Ask</button>
+      </div>
+      <div class="ask-chips">
+        <button class="chip" onclick="askPreset('How much money was spent?')">How much money was spent?</button>
+        <button class="chip" onclick="askPreset('Which projects are delayed?')">Which projects are delayed?</button>
+        <button class="chip" onclick="askPreset('What projects were completed?')">What projects were completed?</button>
+        <button class="chip" onclick="askPreset('Where did the funding come from?')">Where did funding come from?</button>
+        <button class="chip" onclick="askPreset('What are the major civic problems?')">What are the civic problems?</button>
+      </div>
+      <div class="ask-answer" id="askAnswer"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== REPRESENTATIVES SECTION ==================== -->
+<section class="page-section" id="section-representatives">
+  <div class="section-hero mini-hero">
+    <h1>Representative Directory</h1>
+    <p>Search for MLAs, MPs and their documented public activities.</p>
+    <div class="rep-search-bar">
+      <input type="text" id="repSearch" placeholder="Search by name, constituency, party…" oninput="filterRepresentatives()" />
+      <select id="repTypeFilter" onchange="filterRepresentatives()">
+        <option value="">All Types</option>
+        <option value="MLA">MLA</option>
+        <option value="MP">MP</option>
+      </select>
+    </div>
+  </div>
+  <div class="section-block">
+    <div class="rep-grid" id="repGrid"></div>
+  </div>
+
+  <!-- REPRESENTATIVE PROFILE -->
+  <div class="rep-profile-panel" id="repProfilePanel" style="display:none">
+    <div class="section-block">
+      <button class="back-btn" onclick="closeRepProfile()">← Back to Directory</button>
+      <div class="rep-profile-content" id="repProfileContent"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== MONEY SECTION ==================== -->
+<section class="page-section" id="section-money">
+  <div class="section-hero mini-hero">
+    <h1>Public Money</h1>
+    <p>Documented fund allocations, releases and expenditure records.</p>
+  </div>
+
+  <div class="section-block">
+    <div class="money-kpi-row" id="moneyKpiRow"></div>
+  </div>
+
+  <div class="section-block alt-bg">
+    <div class="section-header">
+      <h2>Year-wise Expenditure</h2>
+      <div class="chart-year-filter">
+        <button class="chart-filter-btn active" onclick="setChartYear('all', this)">All Years</button>
+        <button class="chart-filter-btn" onclick="setChartYear('2022', this)">2022</button>
+        <button class="chart-filter-btn" onclick="setChartYear('2023', this)">2023</button>
+        <button class="chart-filter-btn" onclick="setChartYear('2024', this)">2024</button>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3 class="chart-title">Expenditure by Year (₹ Cr)</h3>
+        <div class="bar-chart" id="moneyBarChart"></div>
+      </div>
+      <div class="chart-card">
+        <h3 class="chart-title">Fund Distribution</h3>
+        <div class="donut-chart-wrap">
+          <svg id="donutChart" viewBox="0 0 200 200" width="200" height="200"></svg>
+          <div class="donut-legend" id="donutLegend"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOLLOW THE MONEY -->
+  <div class="section-block">
+    <div class="section-header">
+      <h2>Follow the Money</h2>
+      <p class="section-sub">Trace how public funds move from the Central Government to local projects.</p>
+    </div>
+    <div class="ftm-container" id="ftmContainer"></div>
+    <div class="ftm-detail-panel" id="ftmDetailPanel" style="display:none"></div>
+  </div>
+
+  <!-- NGO / CSR TRACKER -->
+  <div class="section-block alt-bg">
+    <div class="section-header">
+      <h2>NGO / CSR Tracker</h2>
+      <p class="section-sub">Documented development spending from non-government and corporate sources.</p>
+    </div>
+    <div class="ngo-filters">
+      <button class="filter-chip active" onclick="filterNGO('all', this)">All</button>
+      <button class="filter-chip" onclick="filterNGO('NGO', this)">NGO</button>
+      <button class="filter-chip" onclick="filterNGO('CSR', this)">CSR</button>
+      <button class="filter-chip" onclick="filterNGO('Government', this)">Government</button>
+    </div>
+    <div class="ngo-grid" id="ngoGrid"></div>
+    <div class="ngo-sector-chart">
+      <h3>Sector-wise Distribution</h3>
+      <div class="sector-bars" id="sectorBars"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PROJECTS SECTION ==================== -->
+<section class="page-section" id="section-projects">
+  <div class="section-hero mini-hero">
+    <h1>Project Database</h1>
+    <p>Documented public development projects with expenditure and status records.</p>
+  </div>
+
+  <div class="section-block">
+    <div class="project-toolbar">
+      <div class="project-search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="projectSearch" placeholder="Search projects…" oninput="filterProjects()" />
+      </div>
+      <div class="project-filters">
+        <select id="statusFilter" onchange="filterProjects()">
+          <option value="">All Status</option>
+          <option value="Completed">Completed</option>
+          <option value="Ongoing">Ongoing</option>
+          <option value="Delayed">Delayed</option>
+          <option value="Abandoned">Abandoned</option>
+          <option value="Proposed">Proposed</option>
+          <option value="Sanctioned">Sanctioned</option>
+        </select>
+        <select id="deptFilter" onchange="filterProjects()">
+          <option value="">All Departments</option>
+          <option value="PWD">PWD</option>
+          <option value="MCD">MCD</option>
+          <option value="NDMC">NDMC</option>
+          <option value="DDA">DDA</option>
+          <option value="Education">Education</option>
+          <option value="Health">Health</option>
+        </select>
+        <select id="yearFilter" onchange="filterProjects()">
+          <option value="">All Years</option>
+          <option value="2019">2019</option>
+          <option value="2020">2020</option>
+          <option value="2021">2021</option>
+          <option value="2022">2022</option>
+          <option value="2023">2023</option>
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+        </select>
+        <select id="sortProjects" onchange="filterProjects()">
+          <option value="name">Sort: Name</option>
+          <option value="cost-desc">Cost: High→Low</option>
+          <option value="cost-asc">Cost: Low→High</option>
+          <option value="date-desc">Newest First</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="status-tabs">
+      <button class="status-tab active" data-status="" onclick="setStatusTab('', this)">All</button>
+      <button class="status-tab completed" data-status="Completed" onclick="setStatusTab('Completed', this)">Completed</button>
+      <button class="status-tab ongoing" data-status="Ongoing" onclick="setStatusTab('Ongoing', this)">Ongoing</button>
+      <button class="status-tab delayed" data-status="Delayed" onclick="setStatusTab('Delayed', this)">Delayed</button>
+      <button class="status-tab abandoned" data-status="Abandoned" onclick="setStatusTab('Abandoned', this)">Abandoned</button>
+      <button class="status-tab proposed" data-status="Proposed" onclick="setStatusTab('Proposed', this)">Proposed</button>
+    </div>
+
+    <div class="projects-grid" id="projectsGrid"></div>
+  </div>
+
+  <!-- PROJECT MAP -->
+  <div class="section-block alt-bg">
+    <div class="section-header">
+      <h2>Project Map</h2>
+      <p class="section-sub">Visual location of documented projects. Click a marker to view details.</p>
+    </div>
+    <div class="project-map-container">
+      <div class="project-map-legend">
+        <span class="legend-item completed">● Completed</span>
+        <span class="legend-item ongoing">● Ongoing</span>
+        <span class="legend-item delayed">● Delayed</span>
+        <span class="legend-item abandoned">● Abandoned</span>
+        <span class="legend-item proposed">● Proposed</span>
+      </div>
+      <div class="project-map" id="projectMap"></div>
+    </div>
+  </div>
+
+  <!-- BEFORE VS NOW -->
+  <div class="section-block">
+    <div class="section-header">
+      <h2>Before vs Now</h2>
+      <p class="section-sub">Drag the slider to compare documented before/after states. <span class="demo-note">Images are illustrative placeholders.</span></p>
+    </div>
+    <div class="bvn-gallery" id="bvnGallery"></div>
+  </div>
+</section>
+
+<!-- ==================== PROBLEMS SECTION ==================== -->
+<section class="page-section" id="section-problems">
+  <div class="section-hero mini-hero">
+    <h1>Civic Problems</h1>
+    <p>Documented local civic issues by category, location and status.</p>
+  </div>
+
+  <div class="section-block">
+    <div class="problem-category-tabs">
+      <button class="pcat-tab active" onclick="filterProblems('all', this)">All Categories</button>
+      <button class="pcat-tab" onclick="filterProblems('Waste & Environment', this)">♻ Waste & Environment</button>
+      <button class="pcat-tab" onclick="filterProblems('Water & Utilities', this)">💧 Water & Utilities</button>
+      <button class="pcat-tab" onclick="filterProblems('Transport & Infrastructure', this)">🛣 Transport</button>
+      <button class="pcat-tab" onclick="filterProblems('Essential Services', this)">🏥 Essential Services</button>
+    </div>
+    <div class="problems-grid" id="problemsGrid"></div>
+  </div>
+</section>
+
+<!-- ==================== COMPARE SECTION ==================== -->
+<section class="page-section" id="section-compare">
+  <div class="section-hero mini-hero">
+    <h1>Compare</h1>
+    <p>Place constituencies or representatives side by side using factual data.</p>
+  </div>
+
+  <div class="section-block">
+    <div class="compare-tabs">
+      <button class="compare-tab active" onclick="setCompareTab('constituencies', this)">Constituencies</button>
+      <button class="compare-tab" onclick="setCompareTab('representatives', this)">Representatives</button>
+    </div>
+
+    <!-- CONSTITUENCY COMPARE -->
+    <div id="compareConstPanel">
+      <div class="compare-selectors">
+        <select id="cmp1" onchange="renderComparison()" aria-label="First constituency">
+          <option value="new-delhi">New Delhi</option>
+          <option value="south-delhi">South Delhi</option>
+          <option value="north-east-delhi">North East Delhi</option>
+          <option value="chandni-chowk">Chandni Chowk</option>
+        </select>
+        <span class="vs-badge">vs</span>
+        <select id="cmp2" onchange="renderComparison()" aria-label="Second constituency">
+          <option value="south-delhi">South Delhi</option>
+          <option value="new-delhi">New Delhi</option>
+          <option value="north-east-delhi">North East Delhi</option>
+          <option value="chandni-chowk">Chandni Chowk</option>
+        </select>
+        <span class="vs-badge">vs</span>
+        <select id="cmp3" onchange="renderComparison()" aria-label="Third constituency">
+          <option value="">None</option>
+          <option value="north-east-delhi">North East Delhi</option>
+          <option value="new-delhi">New Delhi</option>
+          <option value="south-delhi">South Delhi</option>
+          <option value="chandni-chowk">Chandni Chowk</option>
+        </select>
+      </div>
+      <div class="comparison-table-wrap" id="comparisonTableWrap"></div>
+      <div class="comparison-chart-row" id="comparisonChartRow"></div>
+    </div>
+
+    <!-- REPRESENTATIVE COMPARE -->
+    <div id="compareRepPanel" style="display:none">
+      <div class="compare-selectors">
+        <select id="repCmp1" onchange="renderRepComparison()" aria-label="First representative">
+          <option value="0">Ramesh Kumar</option>
+          <option value="1">Priya Sharma</option>
+          <option value="2">Anil Verma</option>
+        </select>
+        <span class="vs-badge">vs</span>
+        <select id="repCmp2" onchange="renderRepComparison()" aria-label="Second representative">
+          <option value="1">Priya Sharma</option>
+          <option value="0">Ramesh Kumar</option>
+          <option value="2">Anil Verma</option>
+        </select>
+      </div>
+      <div class="rep-comparison-content" id="repComparisonContent"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SOURCES SECTION ==================== -->
+<section class="page-section" id="section-sources">
+  <div class="section-hero mini-hero">
+    <h1>Sources & Evidence</h1>
+    <p>Every figure on CivicLens is linked to a documented source. Browse the evidence index.</p>
+  </div>
+  <div class="section-block">
+    <div class="source-filters">
+      <button class="filter-chip active" onclick="filterSources('all', this)">All Sources</button>
+      <button class="filter-chip" onclick="filterSources('Government', this)">Government</button>
+      <button class="filter-chip" onclick="filterSources('CAG', this)">CAG Audit</button>
+      <button class="filter-chip" onclick="filterSources('RTI', this)">RTI</button>
+      <button class="filter-chip" onclick="filterSources('Gazette', this)">Gazette</button>
+      <button class="filter-chip" onclick="filterSources('Parliament', this)">Parliament</button>
+      <button class="filter-chip" onclick="filterSources('Tender', this)">Tender</button>
+    </div>
+    <div class="sources-grid" id="sourcesGrid"></div>
+  </div>
+</section>
+
+</main>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="#home" class="logo-link" onclick="showSection('home')">
+        <svg width="24" height="24" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect width="28" height="28" rx="6" fill="#1B6FEB"/>
+          <path d="M7 14C7 10.134 10.134 7 14 7s7 3.134 7 7-3.134 7-7 7-7-3.134-7-7z" fill="none" stroke="white" stroke-width="2"/>
+          <circle cx="14" cy="14" r="1.5" fill="white"/>
+        </svg>
+        <span class="logo-text">CivicLens</span>
+      </a>
+      <p class="footer-tagline">Public accountability through documented evidence.</p>
+      <p class="footer-disclaimer">CivicLens presents public information from documented sources and does not provide political endorsements or rankings.</p>
+    </div>
+    <div class="footer-links-grid">
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="#" onclick="showSection('constituencies')">Constituencies</a></li>
+          <li><a href="#" onclick="showSection('representatives')">Representatives</a></li>
+          <li><a href="#" onclick="showSection('projects')">Projects</a></li>
+          <li><a href="#" onclick="showSection('money')">Public Money</a></li>
+          <li><a href="#" onclick="showSection('problems')">Civic Problems</a></li>
+          <li><a href="#" onclick="showSection('sources')">Sources</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>About</h4>
+        <ul>
+          <li><a href="#">About CivicLens</a></li>
+          <li><a href="#">Methodology</a></li>
+          <li><a href="#">Data Sources</a></li>
+          <li><a href="#">Transparency</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Tools</h4>
+        <ul>
+          <li><a href="#" onclick="showSection('compare')">Compare Constituencies</a></li>
+          <li><a href="#" onclick="showSection('compare')">Compare Representatives</a></li>
+          <li><a href="#">RTI Guide</a></li>
+          <li><a href="#">Glossary</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Last updated: <strong>June 2025</strong> — Prototype with Demo Data</span>
+    <span>Data methodology: All figures are sample data for demonstration only.</span>
+  </div>
+</footer>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Source Viewer Modal -->
+<div class="modal-overlay" id="sourceModal" onclick="closeSourceModal(event)" role="dialog" aria-modal="true" aria-labelledby="sourceModalTitle">
+  <div class="modal source-modal">
+    <div class="modal-header">
+      <div>
+        <span class="source-verified-badge">📋 Documented Source</span>
+        <h2 id="sourceModalTitle">Source Information</h2>
+      </div>
+      <button class="modal-close" onclick="closeSourceModal()" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body" id="sourceModalBody"></div>
+  </div>
+</div>
+
+<!-- Project Detail Modal -->
+<div class="modal-overlay" id="projectModal" onclick="closeProjectModal(event)" role="dialog" aria-modal="true" aria-labelledby="projectModalTitle">
+  <div class="modal project-modal">
+    <div class="modal-header">
+      <h2 id="projectModalTitle">Project Details</h2>
+      <button class="modal-close" onclick="closeProjectModal()" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body" id="projectModalBody"></div>
+  </div>
+</div>
+
+<!-- AI Explain Modal -->
+<div class="modal-overlay" id="explainModal" onclick="closeExplainModal(event)" role="dialog" aria-modal="true" aria-labelledby="explainModalTitle">
+  <div class="modal explain-modal">
+    <div class="modal-header">
+      <div>
+        <span class="ai-badge">✦ AI-assisted explanation</span>
+        <h2 id="explainModalTitle">Term Explained</h2>
+      </div>
+      <button class="modal-close" onclick="closeExplainModal()" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body" id="explainModalBody"></div>
+  </div>
+</div>
+
+<!-- FTM Node Modal -->
+<div class="modal-overlay" id="ftmModal" onclick="closeFTMModal(event)" role="dialog" aria-modal="true" aria-labelledby="ftmModalTitle">
+  <div class="modal ftm-modal">
+    <div class="modal-header">
+      <h2 id="ftmModalTitle">Fund Flow Details</h2>
+      <button class="modal-close" onclick="closeFTMModal()" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body" id="ftmModalBody"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
